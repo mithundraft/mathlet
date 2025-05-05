@@ -1,103 +1,186 @@
-import Image from "next/image";
+
+'use client';
+
+import * as React from 'react';
+import Link from 'next/link';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'; // Remove CardDescription
+import { Button } from '@/components/ui/button';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { ArrowRight, Star } from 'lucide-react';
+import { CATEGORIES, CALCULATORS, FAVORITES_STORAGE_KEY, APP_NAME, APP_DESCRIPTION } from '@/lib/constants';
+import { useLocalStorage } from '@/hooks/use-local-storage';
+import type { FavoriteCalculators } from '@/lib/types';
+import { cn } from '@/lib/utils';
+import { Skeleton } from '@/components/ui/skeleton';
+import { JsonLd } from '@/components/seo/json-ld';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [mounted, setMounted] = React.useState(false);
+  const [favorites, setFavorites] = useLocalStorage<FavoriteCalculators>(FAVORITES_STORAGE_KEY, []);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const toggleFavorite = (slug: string, event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setFavorites(prevFavorites =>
+      prevFavorites.includes(slug)
+        ? prevFavorites.filter(fav => fav !== slug)
+        : [...prevFavorites, slug]
+    );
+  };
+
+  // Define WebPage schema for the homepage
+  const homePageSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": `Homepage - ${APP_NAME}`,
+    "url": process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:9002',
+    "description": `Explore a wide range of calculators for finance, fitness, health, and math on ${APP_NAME}. ${APP_DESCRIPTION}`,
+    "isPartOf": {
+        "@type": "WebSite",
+        "url": process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:9002',
+        "name": APP_NAME
+    }
+  };
+
+
+  // Skeleton Loader
+  if (!mounted) {
+    return (
+      <div className="p-4 md:p-8 space-y-8">
+         {/* Add JSON-LD Schema */}
+         <JsonLd data={homePageSchema} />
+         {/* Skeleton for Hero Section */}
+         <section className="text-center py-10 md:py-16"> {/* Removed rounded-lg and gradient */}
+             <Skeleton className="h-10 w-3/4 mx-auto mb-4" /> {/* Title */}
+             <Skeleton className="h-5 w-1/2 mx-auto mb-3" /> {/* Description */}
+             <Skeleton className="h-4 w-full max-w-xl mx-auto" /> {/* Additional Description */}
+             <Skeleton className="h-4 w-3/4 max-w-lg mx-auto mt-1" /> {/* Additional Description */}
+         </section>
+
+        {/* Skeleton for Category Sections */}
+        {Array.from({ length: CATEGORIES.length }).map((_, catIndex) => (
+          <section key={catIndex}>
+            <div className="flex justify-between items-center mb-4">
+              <Skeleton className="h-8 w-1/3" /> {/* Category Title */}
+              <Skeleton className="h-6 w-20" /> {/* View All Skeleton */}
+            </div>
+            <div className="relative">
+              <ScrollArea className="w-full whitespace-nowrap">
+                <div className="flex space-x-4 pb-4">
+                  {/* Skeleton for Calculator Cards */}
+                  {Array.from({ length: 4 }).map((_, cardIndex) => (
+                     <Card key={cardIndex} className="w-[280px] sm:w-[320px] flex-shrink-0 flex flex-col"> {/* Adjusted width */}
+                        <CardHeader className="flex flex-row items-start gap-3 pb-3 pr-10 relative flex-shrink-0">
+                           <Skeleton className="absolute top-2 right-2 h-6 w-6 rounded-full" /> {/* Favorite button skeleton */}
+                           <Skeleton className="h-6 w-6 rounded-sm mt-1 flex-shrink-0" /> {/* Icon Skeleton */}
+                           <div className="flex-grow space-y-1.5">
+                             <Skeleton className="h-5 w-3/4" /> {/* Title */}
+                             {/* Remove Description Skeleton */}
+                          </div>
+                        </CardHeader>
+                         <CardContent className="pt-0 mt-auto flex flex-col"> {/* Adjusted CardContent */}
+                             <div className="flex-grow mb-2" /> {/* Spacer */}
+                             <Skeleton className="h-9 w-full" /> {/* Button - Removed rounded-md */}
+                         </CardContent>
+                      </Card>
+                  ))}
+                </div>
+                <ScrollBar orientation="horizontal" />
+              </ScrollArea>
+            </div>
+          </section>
+        ))}
+      </div>
+    );
+  }
+
+  // Actual Content
+  return (
+    <div className="p-4 md:p-8 space-y-8">
+      {/* Add JSON-LD Schema */}
+      <JsonLd data={homePageSchema} />
+
+      {/* Hero Section */}
+      <section className="text-center py-10 md:py-16"> {/* Removed rounded-lg and gradient */}
+        <h1 className="text-3xl md:text-4xl font-bold mb-3 text-foreground">{APP_NAME}</h1>
+        <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto mb-4">{APP_DESCRIPTION}</p>
+        <p className="text-sm text-muted-foreground max-w-xl mx-auto">
+          Quickly access a variety of calculators covering financial planning, fitness tracking, health metrics, and mathematical problems. Bookmark your favorites for easy access.
+        </p>
+      </section>
+
+      {CATEGORIES.map((category) => {
+        const categoryCalculators = CALCULATORS.filter(
+          (calc) => calc.category === category.name
+        );
+        if (categoryCalculators.length === 0) return null;
+
+        return (
+          <section key={category.name} aria-labelledby={`category-title-${category.name.toLowerCase().replace(/ /g, '-')}`}>
+            <div className="flex justify-between items-center mb-4">
+              <h2 id={`category-title-${category.name.toLowerCase().replace(/ /g, '-')}`} className="text-xl lg:text-2xl font-semibold tracking-tight flex items-center gap-2">
+                <category.icon className="hidden sm:block h-6 w-6 text-primary" aria-hidden="true" />
+                {`Explore ${category.name}`}
+              </h2>
+               {/* "View All" link to search page */}
+               <Link href="/search" className="text-xs lg:text-sm font-medium text-primary hover:underline flex items-center gap-1">
+                   View All
+                   <ArrowRight className="h-4 w-4" />
+               </Link>
+            </div>
+            {/* Remove Description Paragraph */}
+            <div className="relative">
+              <ScrollArea className="w-full whitespace-nowrap">
+                <div className="flex space-x-4 pb-4">
+                  {categoryCalculators.map((calc) => {
+                    const isFavorite = favorites.includes(calc.slug);
+                    return (
+                       <Card key={calc.slug} className="w-[280px] sm:w-[320px] flex flex-col flex-shrink-0 transition-subtle hover:shadow-md dark:hover:shadow-primary/20"> {/* Adjusted width */}
+                          <CardHeader className="flex flex-row items-start gap-3 pb-3 pr-10 relative flex-shrink-0"> {/* Keep relative for button */}
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className={cn(
+                                "absolute top-2 right-2 h-7 w-7 text-muted-foreground hover:text-primary z-10", // Adjusted size
+                                isFavorite && "text-primary"
+                              )}
+                              onClick={(e) => toggleFavorite(calc.slug, e)}
+                              aria-label={isFavorite ? `Remove ${calc.name} from bookmarks` : `Add ${calc.name} to bookmarks`}
+                            >
+                              <Star className={cn("h-5 w-5", isFavorite && "fill-current")} />
+                            </Button>
+                             <calc.icon className="h-6 w-6 text-primary mt-1 flex-shrink-0" aria-hidden="true" />
+                            <div className="flex-grow">
+                              <CardTitle className="text-lg font-semibold leading-tight">{calc.name}</CardTitle>
+                               {/* Remove CardDescription */}
+                            </div>
+                          </CardHeader>
+                           <CardContent className="pt-0 mt-auto flex flex-col"> {/* Make content flex col */}
+                              <div className="flex-grow mb-2" /> {/* Push button down */}
+                             <Link
+                                href={`/calculator/${calc.slug}`}
+                                 className={cn(
+                                    "block w-full text-center text-sm font-medium transition-colors py-2 px-3", // Removed rounded-md, mt-2
+                                    "bg-secondary text-secondary-foreground hover:bg-secondary/80 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1"
+                                  )}
+                              >
+                                Open Calculator
+                              </Link>
+                           </CardContent>
+                        </Card>
+                    );
+                  })}
+                </div>
+                <ScrollBar orientation="horizontal" />
+              </ScrollArea>
+            </div>
+          </section>
+        );
+      })}
     </div>
   );
 }

@@ -1,26 +1,102 @@
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap');
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  /* Use Jost font */
+  font-family: var(--font-jost), sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: 210 40% 98%; /* Very light blue-grey */
+    --foreground: 222.2 84% 4.9%; /* Dark blue-grey */
+    --card: 0 0% 100%; /* White */
+    --card-foreground: 222.2 84% 4.9%; /* Dark blue-grey */
+    --popover: 0 0% 100%; /* White */
+    --popover-foreground: 222.2 84% 4.9%; /* Dark blue-grey */
+    --primary: 24 96% 53%; /* Firebase Orange */
+    --primary-foreground: 0 0% 100%; /* White */
+    --secondary: 210 40% 96.1%; /* Lighter blue-grey */
+    --secondary-foreground: 222.2 47.4% 11.2%; /* Dark blue-grey */
+    --muted: 210 40% 96.1%; /* Lighter blue-grey */
+    --muted-foreground: 215.4 16.3% 46.9%; /* Mid grey */
+    --accent: 48 96% 53%; /* Firebase Yellow/Amber */
+    --accent-foreground: 222.2 84% 4.9%; /* Dark blue-grey */
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 214.3 31.8% 91.4%; /* Light grey */
+    --input: 214.3 31.8% 91.4%; /* Light grey */
+    --ring: 24 96% 53%; /* Firebase Orange */
+    --chart-1: 24 96% 53%; /* Firebase Orange */
+    --chart-2: 48 96% 53%; /* Firebase Yellow */
+    --chart-3: 210 40% 50%; /* Mid Blue */
+    --chart-4: 10 80% 65%; /* Lighter Orange/Red */
+    --chart-5: 140 40% 60%; /* Soft Green */
+    --radius: 0rem; /* Remove border radius */
+    --sidebar-background: 210 40% 98%; /* Very light blue-grey */
+    --sidebar-foreground: 222.2 84% 4.9%; /* Dark blue-grey */
+    --sidebar-primary: 24 96% 53%; /* Firebase Orange */
+    --sidebar-primary-foreground: 0 0% 100%; /* White */
+    --sidebar-accent: 210 40% 94%; /* Lighter grey for sidebar accent */
+    --sidebar-accent-foreground: 222.2 84% 4.9%; /* Dark blue-grey */
+    --sidebar-border: 214.3 31.8% 91.4%; /* Light grey */
+    --sidebar-ring: 24 96% 53%; /* Firebase Orange */
+    --font-jost: 'Jost', sans-serif; /* Jost Font */
+  }
+  .dark {
+    --background: 222.2 84% 4.9%; /* Dark blue-grey */
+    --foreground: 210 40% 98%; /* Very light blue-grey */
+    --card: 222.2 84% 6.9%; /* Slightly lighter dark blue-grey */
+    --card-foreground: 210 40% 98%; /* Very light blue-grey */
+    --popover: 222.2 84% 4.9%; /* Dark blue-grey */
+    --popover-foreground: 210 40% 98%; /* Very light blue-grey */
+    --primary: 24 96% 53%; /* Firebase Orange */
+    --primary-foreground: 0 0% 100%; /* White */
+    --secondary: 217.2 32.6% 17.5%; /* Darker grey */
+    --secondary-foreground: 210 40% 98%; /* Very light blue-grey */
+    --muted: 217.2 32.6% 17.5%; /* Darker grey */
+    --muted-foreground: 215 20.2% 65.1%; /* Lighter grey */
+    --accent: 48 96% 53%; /* Firebase Yellow/Amber */
+    --accent-foreground: 222.2 84% 4.9%; /* Dark blue-grey */
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 217.2 32.6% 17.5%; /* Darker grey */
+    --input: 217.2 32.6% 17.5%; /* Darker grey */
+    --ring: 24 96% 53%; /* Firebase Orange */
+    --chart-1: 24 96% 53%; /* Firebase Orange */
+    --chart-2: 48 96% 53%; /* Firebase Yellow */
+    --chart-3: 210 40% 50%; /* Mid Blue */
+    --chart-4: 10 80% 65%; /* Lighter Orange/Red */
+    --chart-5: 140 40% 60%; /* Soft Green */
+    --radius: 0rem; /* Remove border radius */
+    --sidebar-background: 222.2 84% 4.9%; /* Dark blue-grey */
+    --sidebar-foreground: 210 40% 98%; /* Very light blue-grey */
+    --sidebar-primary: 24 96% 53%; /* Firebase Orange */
+    --sidebar-primary-foreground: 0 0% 100%; /* White */
+    --sidebar-accent: 217.2 32.6% 17.5%; /* Darker grey for sidebar accent */
+    --sidebar-accent-foreground: 210 40% 98%; /* Very light blue-grey */
+    --sidebar-border: 217.2 32.6% 17.5%; /* Darker grey */
+    --sidebar-ring: 24 96% 53%; /* Firebase Orange */
+    --font-jost: 'Jost', sans-serif; /* Jost Font */
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+/* Add subtle transition */
+@layer utilities {
+  .transition-subtle {
+    @apply transition-all duration-200 ease-in-out;
+  }
 }
